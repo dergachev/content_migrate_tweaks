@@ -1,0 +1,19 @@
+<?php
+
+/**
+ * Alters behavior of content_migrate module based on environmental variables.
+ *
+ * Implemetns hook_content_migrate_data_record_alter().
+ */
+function content_migrate_tweaks_content_migrate_data_record_alter(&$record, $field, $instance) {
+	static $count = 0;
+	$count = $count + 1;
+	$max = getenv('MAX');
+	if ($count > $max) {
+		$record = NULL;
+	};
+
+	if (getenv('SKIP_ALL')) {
+		$record = NULL;
+	};
+}

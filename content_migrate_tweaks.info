@@ -1,0 +1,4 @@
+name = Content Migrate Tweaks
+description = Supports altering the behavior of content_migrate module behavior.
+core = 7.x
+dependencies[] = content_migrate
