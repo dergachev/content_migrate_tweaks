@@ -9,7 +9,7 @@ function content_migrate_tweaks_content_migrate_data_record_alter(&$record, $fie
 	static $count = 0;
 	$count = $count + 1;
 	$max = getenv('MAX');
-	if ($count > $max) {
+	if ($max && $count > $max) {
 		$record = NULL;
 	};
 
