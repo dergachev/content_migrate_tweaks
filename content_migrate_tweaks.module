@@ -3,7 +3,7 @@
 /**
  * Alters behavior of content_migrate module based on environmental variables.
  *
- * Implemetns hook_content_migrate_data_record_alter().
+ * Implements hook_content_migrate_data_record_alter().
  */
 function content_migrate_tweaks_content_migrate_data_record_alter(&$record, $field, $instance) {
 	static $count = 0;
