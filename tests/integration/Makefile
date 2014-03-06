@@ -1,15 +1,13 @@
 drush_sqlq := `drush sql-connect` -B --skip-column-names -e
-field_name = field_course_title
-field_type = text
 
-list-fields.txt:
-	$(drush_sqlq) "SELECT field_name, type FROM field_config" > $@
+list-fields:
+	$(drush_sqlq) "SELECT field_name, type FROM field_config"
 
-list-field-types: list-fields.txt
-	cat $^ | cut -f 2 | sort -u
+list-field-types:
+	$(drush_sqlq) "SELECT distinct(type) FROM field_config"
 
-list-fields-by-type: list-fields.txt
-	awk '$$2 == "$(field_type)"' $^ | cut -f 1
+list-fields-by-type-%:
+	$(drush_sqlq) "SELECT field_name FROM field_config WHERE type = '$*'"
 
 list-tables.txt:
 	$(drush_sqlq) "SELECT TABLE_NAME name FROM INFORMATION_SCHEMA.TABLES AS t WHERE TABLE_NAME LIKE 'field_%' AND TABLE_SCHEMA='drupal';" > $@
