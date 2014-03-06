@@ -45,6 +45,11 @@ structure-%:
 	-drush content-migrate-rollback $* -y
 	drush content-migrate-field-structure $* -y
 
+restore =
 field_%:
 	# Running 'make $@'
+ifeq ($(restore),true)
+	$(MAKE) migrate-field-orig-$@.txt
+else
 	$(MAKE) migrate-field-optimized-$@.txt
+endif
