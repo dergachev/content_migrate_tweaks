@@ -102,50 +102,33 @@ function drush_content_migrate_tweaks_content_migrate_field_data_optimized($fiel
     $record = $rows[$i];
     $instance = field_info_instance('node', $field_name, $record['bundle']);
 
-      try {
+    try {
 
-        // Let modules alter this before the insert.
-        drupal_alter('content_migrate_data_record', $record, $field, $instance);
+      // Let modules alter this before the insert.
+      drupal_alter('content_migrate_data_record', $record, $field, $instance);
 
-        // Don't save empty values.
-        if (!empty($record)) {
-          $function = $field['module'] . '_field_is_empty';
-          if (function_exists($function)) {
-            // The $record array has the database columns as keys, which drupal_write_record() will need,
-            // but the _field_is_empty() function will be looking for the short, normalized column name.
-            $item = array();
-            foreach ($new_columns as $column_name => $db_column_name) {
-              if (array_key_exists($db_column_name, $record)) {
-                $item[$column_name] = $record[$db_column_name];
-              }
-            }
-            if ($function($item, $field)) {
-              $record = NULL;
-            }
-          }
+      // Don't save empty values.
+      if (!content_migrate_tweaks_is_empty($record, $field, $new_columns)) {
+        $active_revision_id = $record['active_revision_id'];
+        unset($record['active_revision_id']);
+        if ($record['revision_id'] == $active_revision_id) {
+          drupal_write_record($new_table, $record);
         }
-
-        if (!empty($record)) {
-          $active_revision_id = $record['active_revision_id'];
-          unset($record['active_revision_id']);
-          if ($record['revision_id'] == $active_revision_id) {
-            drupal_write_record($new_table, $record);
-          }
-          drupal_write_record($new_revision_table, $record);
-        }
-      }
-      catch (Exception $e) {
-        $exception = t('<p>Requesting rollback of field "@field" due to failure to convert record:</p>' .
-            '<p>@record</p>  <p>Cause:</p> <p>@cause</p>',
-            array('@field' => $field_name, '@record' => var_export($record, TRUE), '@cause' => $e));
-        drupal_set_message($exception, 'error');
-      }
-
-      // Update our progress information.
-      if ($i % 1000 == 0) {
-        drush_log(dt('Progress: !done / !total', array('!done' => $i, '!total' => count($rows))), 'status');
+        drupal_write_record($new_revision_table, $record);
       }
     }
+    catch (Exception $e) {
+      $exception = t('<p>Requesting rollback of field "@field" due to failure to convert record:</p>' .
+          '<p>@record</p>  <p>Cause:</p> <p>@cause</p>',
+          array('@field' => $field_name, '@record' => var_export($record, TRUE), '@cause' => $e));
+      drupal_set_message($exception, 'error');
+    }
+
+    // Update our progress information.
+    if ($i % 1000 == 0) {
+      drush_log(dt('Progress: !done / !total', array('!done' => $i, '!total' => count($rows))), 'status');
+    }
+  }
 }
 
 /**
@@ -159,3 +142,24 @@ function drush_content_migrate_tweaks_content_migrate_field_optimized($field_nam
   drush_log(dt('Migration complete'), 'status');
 }
 
+
+function content_migrate_tweaks_is_empty($record, $field, $new_columns) { 
+  if (empty($record)) {
+    return TRUE;
+  }
+  $function = $field['module'] . '_field_is_empty';
+  if (function_exists($function)) {
+    // The $record array has the database columns as keys, which drupal_write_record() will need,
+    // but the _field_is_empty() function will be looking for the short, normalized column name.
+    $item = array();
+    foreach ($new_columns as $column_name => $db_column_name) {
+      if (array_key_exists($db_column_name, $record)) {
+        $item[$column_name] = $record[$db_column_name];
+      }
+    }
+    return $function($item, $field);
+  }
+  else {
+    return FALSE;
+  }
+}
