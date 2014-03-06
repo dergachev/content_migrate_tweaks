@@ -1,9 +1,22 @@
 <?php
 
-# include_once(dirname(__FILE__) . '/../modules/content_migrate.file.inc');
-# include_once(dirname(__FILE__) . '/../modules/content_migrate.number.inc');
-# include_once(dirname(__FILE__) . '/../modules/content_migrate.options.inc');
-# include_once(dirname(__FILE__) . '/../modules/content_migrate.text.inc');
+// module_load_include calls require drupal_bootstrap_full
+function content_migrate_tweaks_includes() {
+
+  module_load_include('php', 'content_migrate_tweaks', 'ContentMigrateTweaksUtils');
+
+  # include_once(dirname(__FILE__) . '/../modules/content_migrate.file.inc');
+  # include_once(dirname(__FILE__) . '/../modules/content_migrate.number.inc');
+  # include_once(dirname(__FILE__) . '/../modules/content_migrate.options.inc');
+  # include_once(dirname(__FILE__) . '/../modules/content_migrate.text.inc');
+
+  //TODO: why didn't content-migrate just include ONLY the field-specific helper
+  // module_load_include('inc', 'content_migrate', 'modules/content_migrate.' . $field['module']);
+  module_load_include('inc', 'content_migrate', 'modules/content_migrate.file');
+  module_load_include('inc', 'content_migrate', 'modules/content_migrate.number');
+  module_load_include('inc', 'content_migrate', 'modules/content_migrate.options');
+  module_load_include('inc', 'content_migrate', 'modules/content_migrate.text');
+}
 
 /**
  * @file content_migrate_tweaks.drush.inc
@@ -50,14 +63,7 @@ function content_migrate_tweaks_drush_command() {
 function drush_content_migrate_tweaks_content_migrate_field_data_optimized($field_name) {
   drush_log(dt('Migrating data for !field', array('!field' => $field_name)), 'status');
 
-
-  //TODO: why didn't content-migrate just include ONLY the field-specific helper
-  // module_load_include('inc', 'content_migrate', 'modules/content_migrate.' . $field['module']);
-  module_load_include('inc', 'content_migrate', 'modules/content_migrate.file');
-  module_load_include('inc', 'content_migrate', 'modules/content_migrate.number');
-  module_load_include('inc', 'content_migrate', 'modules/content_migrate.options');
-  module_load_include('inc', 'content_migrate', 'modules/content_migrate.text');
-  module_load_include('php', 'content_migrate_tweaks', 'ContentMigrateTweaksUtils');
+  content_migrate_tweaks_includes();
 
   $field_value = content_migrate_get_field_values($field_name);
   if (isset($field_value['messages'])) {
