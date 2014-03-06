@@ -143,7 +143,7 @@ function drush_content_migrate_tweaks_content_migrate_field_data_optimized($fiel
 
       // Update our progress information.
       if ($i % 1000 == 0) {
-        drush_log(t('Progress: %done / %total', array('%done' => $i, '%total' => $max)));
+        drush_log(dt('Progress: !done / !total', array('!done' => $i, '!total' => count($rows))), 'status');
       }
     }
 }
