@@ -14,7 +14,7 @@ require(dirname(__FILE__) . "/../ContentMigrateTweaksUtils.php");
 
 /*
  * @file
- *   PHPUnit Tests for MenuBlockUtils. 
+ *   PHPUnit Tests for MenuBlockUtils.
  *   This uses Drush's test framework, which is based on PHPUnit.
  */
 class UtilsTest extends \Drush_CommandTestCase {
@@ -32,7 +32,6 @@ class UtilsTest extends \Drush_CommandTestCase {
     $fixtures['all_revisions_singlevalued'] = array(
       'query' => Utils::getDataQuery('content_field_course_note', FALSE, $columns, $columns),
       'sql'   => "SELECT n.type AS bundle,
-                         n.vid AS active_revision_id,
                          old_table.nid AS entity_id,
                          old_table.vid AS revision_id,
                          old_table.field_course_note_value AS field_course_note_value,
@@ -48,7 +47,6 @@ class UtilsTest extends \Drush_CommandTestCase {
     $fixtures['all_revisions_multivalued'] = array(
       'query' => Utils::getDataQuery('content_field_course_note', TRUE, $columns, $columns),
       'sql'   => "SELECT n.type AS bundle,
-                         n.vid AS active_revision_id,
                          old_table.nid AS entity_id,
                          old_table.vid AS revision_id,
                          old_table.field_course_note_value AS field_course_note_value,
@@ -64,7 +62,6 @@ class UtilsTest extends \Drush_CommandTestCase {
     $fixtures['active_revisions_multivalued'] = array(
       'query' => Utils::getDataQuery('content_field_course_note', TRUE, $columns, $columns, TRUE),
       'sql'   => "SELECT n.type AS bundle,
-                         n.vid AS active_revision_id,
                          old_table.nid AS entity_id,
                          old_table.vid AS revision_id,
                          old_table.field_course_note_value AS field_course_note_value,
@@ -89,15 +86,15 @@ class UtilsTest extends \Drush_CommandTestCase {
 
     $fixtures = array();
 
-    // all_revisions_singlevalued 
+    // all_revisions_singlevalued
     $columns = array('note_value' => 'field_course_note_value', 'note_format' => 'field_course_note_format');
     $select_query = Utils::getDataQuery('content_field_course_note', FALSE, $columns, $columns);
-    $query = Utils::getInsertQuery('field_revisions_field_course_note', $select_query);
-    $sql = "INSERT INTO {field_revisions_field_course_note} 
-      (bundle, entity_id, revision_id, field_course_note_value, field_course_note_format, delta, entity_type, language) 
+    $query = Utils::getInsertQuery('field_revisions_field_course_note', $select_query, $field);
+    $sql = "INSERT INTO {field_revisions_field_course_note}
+      (bundle, entity_id, revision_id, field_course_note_value, field_course_note_format, delta, entity_type, language)
       $select_query";
     $fixtures['all_revisions_singlevalued'] = array(
-      'select_query' => $select_query, 
+      'select_query' => $select_query,
       'query' => $query,
       'sql' => $sql,
     );
@@ -105,12 +102,12 @@ class UtilsTest extends \Drush_CommandTestCase {
     // all_revisions_multivalued
     $columns = array('note_value' => 'field_course_note_value', 'note_format' => 'field_course_note_format');
     $select_query = Utils::getDataQuery('content_field_course_note', FALSE, $columns, $columns);
-    $query = Utils::getInsertQuery('field_revisions_field_course_note', $select_query);
+    $query = Utils::getInsertQuery('field_revisions_field_course_note', $select_query, $field);
     $sql = "INSERT INTO {field_revisions_field_course_note}
-      (bundle, entity_id, revision_id, field_course_note_value, field_course_note_format, delta, entity_type, language) 
+      (bundle, entity_id, revision_id, field_course_note_value, field_course_note_format, delta, entity_type, language)
       $select_query";
     $fixtures['all_revisions_multivalued'] = array(
-      'select_query' => $select_query, 
+      'select_query' => $select_query,
       'query' => $query,
       'sql' => $sql,
     );
@@ -118,12 +115,12 @@ class UtilsTest extends \Drush_CommandTestCase {
     // active_revisions_multivalued
     $columns = array('note_value' => 'field_course_note_value', 'note_format' => 'field_course_note_format');
     $select_query = Utils::getDataQuery('content_field_course_note', TRUE, $columns, $columns);
-    $query = Utils::getInsertQuery('field_data_field_course_note', $select_query);
+    $query = Utils::getInsertQuery('field_data_field_course_note', $select_query, $field);
     $sql = "INSERT INTO {field_data_field_course_note}
-      (bundle, entity_id, revision_id, field_course_note_value, field_course_note_format, delta, entity_type, language) 
+      (bundle, entity_id, revision_id, field_course_note_value, field_course_note_format, delta, entity_type, language)
       $select_query";
     $fixtures['active_revisions_multivalued'] = array(
-      'select_query' => $select_query, 
+      'select_query' => $select_query,
       'query' => $query,
       'sql' => $sql,
     );
@@ -133,6 +130,10 @@ class UtilsTest extends \Drush_CommandTestCase {
     } else {
       return $fixtures;
     }
+  }
+
+  function testAddEmptyCheck() {
+    //TODO: write tests for me, and also fix up tests for testGetInsertQuery() to reflect this.
   }
 
   /**

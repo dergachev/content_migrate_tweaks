@@ -15,7 +15,6 @@ class Utils {
     }
 
     $query->addField('n', 'type', 'bundle');
-    $query->addField('n', 'vid', 'active_revision_id');
     $query->addField('old_table', 'nid', 'entity_id');
     $query->addField('old_table', 'vid', 'revision_id');
     foreach ($old_columns as $column_name => $db_column_name) {
@@ -36,9 +35,38 @@ class Utils {
     return $query;
   }
 
-  public static function getInsertQuery($new_table, $select_query) {
+  /**
+   * Ensure that the select query omits null or empty values.
+   *
+   * @param $query - the query to modify
+   * @param $field - as returned by field_info_field()
+   * @return @void
+   *
+   * @see _field_is_empty check in _content_migrate_batch_process_migrate_data().
+   */
+  public static function addEmptyCheck(&$query, $field) {
+    //TODO: figure out if its OK to leave the newly introduced $format_column (only in D7 for text fields) as NULL
+    // However this seems to be consistent content-migrate-field-data, so OK for now.
+    switch($field['type']) {
+    case "text":
+    case "text_long":
+    case "number_float":
+    case "number_integer":
+    case "list_text":
+      $field_name = $field['field_name'];
+      $value_column = "old_table.${field_name}_value";
+      $query->isNotNull($value_column);
+      // NB: The condition must be "NOT LIKE" and not "NOT EQUALS" because in mysql,
+      // "SELECT '' EQUALS '   '" and "SELECT 0 EQUALS '   '" are both true, while
+      // "SELECT '' LIKE 0" behaves as expected (eg. strict comparison).
+      $query->condition($value_column, '', 'NOT LIKE');
+      break;
+    }
+  }
+
+  public static function getInsertQuery($new_table, $select_query, $field) {
+    self::addEmptyCheck($select_query, $field);
     $fields = $select_query->getFields();
-    unset($fields['active_revision_id']);
     $expressions = $select_query->getExpressions();
     $new_columns = array_merge(array_keys($fields), array_keys($expressions));
     return db_insert($new_table)

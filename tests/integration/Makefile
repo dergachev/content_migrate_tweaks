@@ -21,7 +21,9 @@ list-fields:
 		INNER JOIN field_config fc \
 		  ON fc.field_name = fci.field_name \
 		WHERE \
-		  fc.field_name NOT IN ('comment_body', 'body') AND fc.type != 'entityreference' \
+		  fc.field_name NOT IN ('comment_body', 'body') \
+		AND \
+		  fc.type IN ('list_text' 'number_float', 'number_integer', 'text', 'text_long') \
 		  $(type_where) $(bundle_where) \
 	  GROUP BY fc.field_name;"
 
@@ -32,7 +34,9 @@ show-fields:
 		INNER JOIN field_config fc \
 		  ON fc.field_name = fci.field_name \
 		WHERE \
-		  fc.field_name NOT IN ('comment_body', 'body') AND fc.type != 'entityreference' \
+		  fc.field_name NOT IN ('comment_body', 'body') \
+		AND \
+		  fc.type IN ('list_text' 'number_float', 'number_integer', 'text', 'text_long') \
 		  $(type_where) $(bundle_where) \
 	  ;"
 
