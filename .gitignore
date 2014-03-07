@@ -1,2 +1,3 @@
 tests/integration/*.txt
+tests/integration/*.sql
 *.swp

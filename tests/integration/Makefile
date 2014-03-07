@@ -43,13 +43,22 @@ list-tables.txt:
 checksum-orig.txt: list-tables.txt
 	test -e $@ || (cat list-tables.txt | xargs -I {} $(drush_sqlq) "checksum table {}" > $@)
 
+dump-orig.sql: list-tables.txt
+	test -e $@ || (drush sql-dump --data-only --ordered-dump --tables-list=$$(cat list-tables.txt | paste -s -d, -) > $@)
+
+dump-current.sql: list-tables.txt
+	drush sql-dump --data-only --ordered-dump --tables-list=$$(cat list-tables.txt | paste -s -d, -) > $@
+
 # NOTE: The dependencies here are ALL existing migrate-field-optimized-*.txt files
 #       This reruns the optimized stuff on anything that's been touched, ever.
 checksum-current.txt: list-tables.txt migrate-field-optimized-*.txt
 	cat list-tables.txt | xargs -I {} $(drush_sqlq) "checksum table {}" > $@
 
 diff: checksum-orig.txt checksum-current.txt
-	git diff --no-index --color checksum-orig.txt checksum-current.txt
+	-git diff --no-index --color checksum-orig.txt checksum-current.txt
+
+diff-dump: dump-orig.sql dump-current.sql
+	-git diff --no-index --color dump-orig.sql dump-current.sql
 
 # necessary only because 'drush content-migrate-field-data' might get exception and trigger rollback
 # TODO: ($(drush_sqlq) "describe field_data_$*" > /dev/null) || $(MAKE) structure-$*
@@ -60,7 +69,7 @@ migrate-field-orig-%.txt: ensure-structure-exists-%
 	# Migrating $@
 	$(drush_sqlq) "TRUNCATE TABLE field_data_$*;  TRUNCATE TABLE field_revision_$*;"
 	time -p drush content-migrate-field-data $* -y 2>&1 | tee $@
-	rm migrate-field-optimized-$*.txt
+	-rm migrate-field-optimized-$*.txt
 
 migrate-field-optimized-%.txt: checksum-orig.txt
 	$(MAKE) ensure-structure-exists-$*
