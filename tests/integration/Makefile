@@ -1,21 +1,37 @@
 drush_sqlq := `drush sql-connect` -B --skip-column-names -e
-field_type = text
+type =
+bundle =
+ifneq ($(type),)
+type_where = AND fc.type = '$(type)'
+endif
+ifneq ($(bundle),)
+bundle_where = AND fci.bundle = '$(bundle)'
+endif
 
-list-fields:
-	@$(drush_sqlq) "SELECT field_name, type FROM field_config"
+group_by = GROUP BY fc.field_name
+
 
 list-field-types:
 	@$(drush_sqlq) "SELECT distinct(type) FROM field_config"
 
-list-fields-by-type-%:
-	@$(drush_sqlq) "SELECT field_name FROM field_config WHERE type = '$*'"
+list-bundles:
+	@$(drush_sqlq) "SELECT distinct(bundle) FROM field_config_instance"
 
-list-fields-by-bundle-%:
-ifeq ($(field_type),)
-	@$(drush_sqlq) "SELECT distinct(field_name) FROM field_config_instance WHERE bundle = '$*';"
-else
-	@$(drush_sqlq) "SELECT distinct(field_name) FROM field_config_instance WHERE bundle = '$*';"
-endif
+list-fields:
+	@$(drush_sqlq) " \
+		SELECT fc.field_name \
+		FROM field_config_instance fci \
+		INNER JOIN field_config fc ON fc.field_name = fci.field_name \
+		WHERE TRUE $(type_where) $(bundle_where) \
+	  GROUP BY fc.field_name;"
+
+show-fields:
+	@$(drush_sqlq) " \
+		SELECT fc.field_name, fc.type, fci.bundle \
+		FROM field_config_instance fci \
+		INNER JOIN field_config fc ON fc.field_name = fci.field_name \
+		WHERE TRUE $(type_where) $(bundle_where) \
+	  ;"
 
 list-tables.txt:
 	$(drush_sqlq) "SELECT TABLE_NAME name FROM INFORMATION_SCHEMA.TABLES AS t WHERE TABLE_NAME LIKE 'field_%' AND TABLE_SCHEMA='drupal';" > $@
