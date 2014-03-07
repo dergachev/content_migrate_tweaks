@@ -51,7 +51,7 @@ dump-orig.sql: list-tables.txt
 	test -e $@ || (drush sql-dump --ordered-dump --tables-list=$$(cat list-tables.txt | paste -s -d, -) > $@)
 
 dump-current.sql: list-tables.txt migrate-field-optimized-*.txt
-	drush sql-dump --data-only --ordered-dump --tables-list=$$(cat list-tables.txt | paste -s -d, -) > $@
+	drush sql-dump --ordered-dump --tables-list=$$(cat list-tables.txt | paste -s -d, -) > $@
 
 # NOTE: The dependencies here are ALL existing migrate-field-optimized-*.txt files
 #       This reruns the optimized stuff on anything that's been touched, ever.
