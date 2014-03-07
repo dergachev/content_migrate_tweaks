@@ -8,9 +8,6 @@ ifneq ($(bundle),)
 bundle_where = AND fci.bundle = '$(bundle)'
 endif
 
-group_by = GROUP BY fc.field_name
-
-
 list-field-types:
 	@$(drush_sqlq) "SELECT distinct(type) FROM field_config"
 
@@ -21,16 +18,22 @@ list-fields:
 	@$(drush_sqlq) " \
 		SELECT fc.field_name \
 		FROM field_config_instance fci \
-		INNER JOIN field_config fc ON fc.field_name = fci.field_name \
-		WHERE TRUE $(type_where) $(bundle_where) \
+		INNER JOIN field_config fc \
+		  ON fc.field_name = fci.field_name \
+		WHERE \
+		  fc.field_name NOT IN ('comment_body', 'body') AND fc.type != 'entityreference' \
+		  $(type_where) $(bundle_where) \
 	  GROUP BY fc.field_name;"
 
 show-fields:
 	@$(drush_sqlq) " \
 		SELECT fc.field_name, fc.type, fci.bundle \
 		FROM field_config_instance fci \
-		INNER JOIN field_config fc ON fc.field_name = fci.field_name \
-		WHERE TRUE $(type_where) $(bundle_where) \
+		INNER JOIN field_config fc \
+		  ON fc.field_name = fci.field_name \
+		WHERE \
+		  fc.field_name NOT IN ('comment_body', 'body') AND fc.type != 'entityreference' \
+		  $(type_where) $(bundle_where) \
 	  ;"
 
 list-tables.txt:
