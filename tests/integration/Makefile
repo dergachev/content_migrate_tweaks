@@ -59,7 +59,7 @@ migrate-field-orig-%.txt: ensure-structure-exists-%
 	time -p drush content-migrate-field-data $* -y 2>&1 | tee $@
 	rm migrate-field-optimized-$*.txt
 
-migrate-field-optimized-%.txt:
+migrate-field-optimized-%.txt: checksum-orig.txt
 	$(MAKE) ensure-structure-exists-$*
 	$(drush_sqlq) "TRUNCATE TABLE field_data_$*;  TRUNCATE TABLE field_revision_$*;"
 	time -p drush content-migrate-field-data-optimized $* -y 2>&1 | tee $@
