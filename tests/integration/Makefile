@@ -23,7 +23,7 @@ list-fields:
 		WHERE \
 		  fc.field_name NOT IN ('comment_body', 'body') \
 		AND \
-		  fc.type IN ('list_text' 'number_float', 'number_integer', 'text', 'text_long') \
+		  fc.type IN ('list_text', 'number_float', 'number_integer', 'text', 'text_long') \
 		  $(type_where) $(bundle_where) \
 	  GROUP BY fc.field_name;"
 
@@ -47,7 +47,7 @@ show-fields:
 		WHERE \
 		  fc.field_name NOT IN ('comment_body', 'body') \
 		AND \
-		  fc.type IN ('list_text' 'number_float', 'number_integer', 'text', 'text_long') \
+		  fc.type IN ('list_text', 'number_float', 'number_integer', 'text', 'text_long') \
 		  $(type_where) $(bundle_where) \
 	  ;"
 
