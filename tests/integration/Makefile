@@ -27,6 +27,17 @@ list-fields:
 		  $(type_where) $(bundle_where) \
 	  GROUP BY fc.field_name;"
 
+list-fields-d6:
+	@$(drush_sqlq) " \
+		SELECT fc.field_name \
+		FROM content_node_field_instance fci \
+		INNER JOIN content_node_field fc \
+		  ON fc.field_name = fci.field_name \
+		WHERE fc.type IN ( 'number_integer' , 'number_float', 'text' ) \
+		AND 	fci.widget_type NOT IN ('optionwidgets_onoff') \
+	  GROUP BY fc.field_name;"
+
+
 show-fields:
 	@$(drush_sqlq) " \
 		SELECT fc.field_name, fc.type, fci.bundle \
