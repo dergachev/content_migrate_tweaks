@@ -61,6 +61,12 @@ class Utils {
       // "SELECT '' LIKE 0" behaves as expected (eg. strict comparison).
       $query->condition($value_column, '', 'NOT LIKE');
       break;
+    case "node_reference":
+      $field_name = $field['field_name'];
+      $value_column = "old_table.${field_name}_nid";
+      $query->isNotNull($value_column);
+      $query->condition($value_column, '', 'NOT LIKE');
+      break;
     }
   }
 

@@ -7,7 +7,7 @@
 
 include_once(dirname(__FILE__) . '/ContentMigrateTweaksUtils.php');
 
-define("CONTENT_MIGRATE_TWEAKS_SUPPORTED_TYPES", "list_text number_float number_integer text text_long");
+define("CONTENT_MIGRATE_TWEAKS_SUPPORTED_TYPES", "list_text number_float number_integer text text_long node_reference");
 
 /**
  * Implementation of hook_drush_help().
