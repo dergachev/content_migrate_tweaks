@@ -23,20 +23,19 @@ list-fields:
 		WHERE \
 		  fc.field_name NOT IN ('comment_body', 'body') \
 		AND \
-		  fc.type IN ('list_text', 'number_float', 'number_integer', 'text', 'text_long') \
+		  fc.type IN ('list_text', 'number_float', 'number_integer', 'text', 'text_long', 'node_reference') \
 		  $(type_where) $(bundle_where) \
 	  GROUP BY fc.field_name;"
 
 list-fields-d6:
 	@$(drush_sqlq) " \
-		SELECT fc.field_name \
-		FROM content_node_field_instance fci \
-		INNER JOIN content_node_field fc \
-		  ON fc.field_name = fci.field_name \
-		WHERE fc.type IN ( 'number_integer' , 'number_float', 'text' ) \
-		AND 	fci.widget_type NOT IN ('optionwidgets_onoff') \
-	  GROUP BY fc.field_name;"
-
+		SELECT cf.field_name \
+		FROM content_node_field_instance cfi \
+		INNER JOIN content_node_field cf \
+		  ON cf.field_name = cfi.field_name \
+		WHERE cf.type IN ( 'number_integer' , 'number_float', 'text', 'nodereference' ) \
+		AND 	cfi.widget_type NOT IN ('optionwidgets_onoff') \
+	  GROUP BY cf.field_name;"
 
 show-fields:
 	@$(drush_sqlq) " \
@@ -47,9 +46,19 @@ show-fields:
 		WHERE \
 		  fc.field_name NOT IN ('comment_body', 'body') \
 		AND \
-		  fc.type IN ('list_text', 'number_float', 'number_integer', 'text', 'text_long') \
+		  fc.type IN ('list_text', 'number_float', 'number_integer', 'text', 'text_long', 'node_reference') \
 		  $(type_where) $(bundle_where) \
 	  ;"
+
+show-fields-d6:
+	@$(drush_sqlq) " \
+		SELECT cf.field_name, cf.type, cfi.type_name \
+		FROM content_node_field_instance cfi \
+		INNER JOIN content_node_field cf \
+		  ON cf.field_name = cfi.field_name \
+		WHERE cf.type IN ( 'number_integer' , 'number_float', 'text', 'nodereference' ) \
+		AND 	cfi.widget_type NOT IN ('optionwidgets_onoff') \
+	  GROUP BY cf.field_name;"
 
 list-tables.txt:
 	$(drush_sqlq) "SELECT TABLE_NAME name FROM INFORMATION_SCHEMA.TABLES AS t WHERE TABLE_NAME LIKE 'field_%' AND TABLE_SCHEMA='drupal';" > $@
